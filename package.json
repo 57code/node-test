@@ -1,0 +1,33 @@
+{
+  "name": "node-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "cpu-stat": "^2.0.1",
+    "express": "^4.16.4",
+    "koa": "^2.7.0",
+    "koa-static": "^5.0.0",
+    "koa-router": "^7.4.0",
+    "mongodb": "^3.1.13",
+    "mongoose": "^5.4.17",
+    "mysql2": "^1.6.5",
+    "redis": "^2.8.0",
+    "sequelize": "^4.43.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/57code/node-test.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/57code/node-test/issues"
+  },
+  "homepage": "https://github.com/57code/node-test#readme"
+}
