@@ -1,0 +1,168 @@
+{{#contentFor 'style'}}
+<style>
+    
+#home-banner-video {
+  position: fixed;
+  z-index: 200000;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  margin-top: -64px;
+}
+
+.vip-course-text > h1 {
+  color: #00aff2;
+  font-size: 38px;
+  font-weight: normal;
+}
+
+.vip-course-box {
+  margin-top: 124px;
+}
+
+.vip-course-text {
+  margin: 0 16% 20px;
+}
+
+.vip-course-text > p {
+  color: #00aff2;
+  font-size: 28px;
+}
+
+.vip-course-list {
+  margin: 0 16%;
+}
+
+.vip-course-item {
+  position: relative;
+  height: 370px;
+  margin-bottom: 20px;
+    background-position: center;
+    background-size: auto 100%;
+}
+
+.right-img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 58%;
+  background-position: center;
+  background-size: auto 100%;
+}
+
+.left-text {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 42%;
+  background: #191a1b;
+  padding: 40px 30px 30px;
+  box-sizing: border-box;
+}
+
+.left-text > p {
+  color: white;
+}
+
+p.course-name {
+  font-size: 32px;
+}
+
+.cooperate-company > span {
+  color: white;
+}
+
+.cooperate-company > img {
+  height: 16px;
+}
+
+img.arrow {
+  margin-top: 5px;
+  position: absolute;
+  right: 30px;
+  bottom: 36px;
+}
+
+.cooperate-company {
+  position: absolute;
+  bottom: 30px;
+}
+</style>
+{{/contentFor}}
+
+
+<!--欢迎视频-->
+{{#if showVideo}}
+<video id="home-banner-video" autoplay muted>
+    <source src="https://img.kaikeba.com/slogan_new.mp4" type="video/mp4">
+</video>
+{{/if}}
+
+
+<!--vip课程列表-->
+<div class="vip-course-box">
+    <div class="vip-course-text">
+        <h1>精品课程，全新升级</h1>
+        <p>系统化名师授课，前沿性方法教学，班级化学员管理，实战性成果校验</p>
+    </div>
+    <div class="vip-course-list">
+        {{#each vipCourses}}
+        <div class="vip-course-item" style="background-image: url({{poster}});">
+            <div class="right-img"></div>
+            <div class="left-text">
+                <p class="course-name">{{name}}</p>
+                <p class="course-describe">{{description}}</p>
+                <div class="cooperate-company">
+                    <span>学员去向企业：</span>
+                    {{#each cooperation}}
+                    <img src="{{.}}">
+                    {{/each}}
+                </div>
+                <img class="arrow" src="https://img.kaikeba.com/arrow.png">
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+
+
+
+{{!-- 1.插值绑定 --}}
+<h1>{{subTitle}}</h1>
+
+{{!-- 2.注释 --}}
+
+{{!-- 3.HTML内容 --}}
+<p title="aaa">{{{htmlStr}}}</p>
+
+{{!-- 4.条件语句 --}}
+{{!-- 前面加#，块命令，它必须关闭 --}}
+{{#if isShow}}
+<p>{{username}}，欢迎你！</p>
+{{else}}
+<a href>请登录</a>
+{{/if}}
+
+{{!-- 5.循环 --}}
+<ul>
+    {{#each users}} 
+    <li>{{username}} - {{age}} - {{date birthday 'YYYY/MM/DD'}}</li>
+    {{/each}}
+</ul>
+
+
+{{#contentFor 'jquery'}}
+<script>
+    $(function(){
+        console.log('content for jQuery')
+
+        // 关闭视频
+        $('#home-banner-video').on('ended',function(){
+            $(this).remove();
+        })
+    })
+</script>
+{{/contentFor}}
