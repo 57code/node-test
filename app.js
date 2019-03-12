@@ -1,56 +1,104 @@
 const Koa = require("koa");
-const static = require('koa-static')
+const static = require("koa-static");
 const app = new Koa();
 
 // 数据库连接
-const mongoose = require('./models/mongoose')
-
+const mongoose = require("./models/mongoose");
 
 // 引入模板引擎
-const hbs = require('koa-hbs')
-const helpers = require('./utils/helpers')
-app.use(hbs.middleware({
-    viewPath: __dirname + '/views', //视图根目录
-    defaultLayout: 'layout', //默认布局页面
-    partialsPath: __dirname + '/views/partials', //注册partial目录
+const hbs = require("koa-hbs");
+const helpers = require("./utils/helpers");
+app.use(
+  hbs.middleware({
+    viewPath: __dirname + "/views", //视图根目录
+    defaultLayout: "layout", //默认布局页面
+    partialsPath: __dirname + "/views/partials", //注册partial目录
     disableCache: true //开发阶段不缓存
-}));
+  })
+);
 
 // 导入路由文件
-const index = require('./routes/index')
-const users = require('./routes/users')
+const index = require("./routes/index");
+const users = require("./routes/users");
+const api = require("./routes/api");
+const students = require("./routes/students");
 
 // 中间件框架
 // 中间件是一个异步函数，对用户请求和响应做预处理
-
+const bouncer = require("koa-bouncer");
 // 错误处理中间件写在最上面
 app.use(async (ctx, next) => {
   try {
     await next();
   } catch (error) {
     // 系统日志
-    console.log(error);
+
     // 给用户显示信息
-    // ctx.status = error.statusCode || error.status || 500;
+    ctx.status = error.statusCode || error.status || 500;
     // ctx.type = "json";
-    ctx.type = 'text'
-    if (error.expose) {
-        ctx.body = error.message;
-    } else {
-        ctx.body = error.stack;
+
+    if (error instanceof bouncer.ValidationError) {
+      ctx.body = '校验失败：'+error.message;
+      return; 
     }
-    
+
+    ctx.type = "text";
+    if (error.expose) {
+      console.log("-------error.expose=true---------");
+      // ctx.body = error.message;
+      ctx.body = error.stack;
+    } else {
+      console.log("-------error.expose=false---------");
+
+      ctx.body = error.stack;
+    }
+
     // 全局错误处理
     ctx.app.emit("error", error);
   }
 });
 
 // 静态文件服务
-app.use(static(__dirname + '/public'))
+app.use(static(__dirname + "/public"));
 
+app.use(bouncer.middleware());
+
+const bodyparser = require("koa-bodyparser");
+app.use(bodyparser());
+
+const session = require("koa-session");
+const redisStore = require("koa-redis");
+const redis = require("redis");
+const client = redis.createClient(6379, "localhost");
+app.keys = ["some secret", "another secret"];
+app.use(
+  session(
+    {
+      key: "kkb:sess",
+      store: redisStore({ client })
+    },
+    app
+  )
+);
+// app.use(ctx => {
+//   if (ctx.path === '/favicon.ico') return;
+//   // 获取
+//   let n = ctx.session.count || 0;
+//   // 设置
+//   ctx.session.count = ++n;
+//   ctx.body = '第' + n + '次访问';
+//   //查看数据
+//   client.keys('*',(err,keys)=>{
+//     console.log(keys);
+//     keys.forEach(key=>{
+//       client.get(key,(err,val)=>{
+//         console.log(val);
+//       })
+//     })
+//   })
+// });
 // vip课程查询中间件
-app.use(require('./middleware/get-vip'))
-
+app.use(require("./middleware/get-vip"));
 
 app.use(async (ctx, next) => {
   //请求操作
@@ -91,7 +139,8 @@ app.use(async (ctx, next) => {
 
 app.use(index.routes());
 app.use(users.routes());
-
+app.use(api.routes());
+app.use(students.routes());
 
 // 监听全局错误事件
 app.on("error", err => {
