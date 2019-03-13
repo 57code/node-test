@@ -51,7 +51,7 @@ router.post("/login-token", async ctx => {
       // 签名只是防篡改
       {
         data: userinfo, // 由于签名不是加密，令牌中不要存放敏感数据
-        exp: Math.floor(Date.now() / 1000) + 60 * 60 // 过期时间1分钟
+        exp: Math.floor(Date.now() / 1000) + 3600 // 过期时间1分钟
       },
       secret
     )
