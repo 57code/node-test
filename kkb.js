@@ -1,22 +1,64 @@
-const Koa = require("koa");
-const app = new Koa();
-const {initRouter,initController,initService} = require('./kkb-loader')
+const http = require("http");
+const context = require("./context");
+const request = require("./request");
+const response = require("./response");
 
-class kkb {
-    constructor(conf) {
-        this.$app = new Koa(conf);
-        this.$ctrl = initController(this);
-        this.$serv = initService(this);
-        this.$router = initRouter(this);
-        this.$app.use(this.$router.routes())
-    }
+class KKB {
+  constructor() {
+      this.middlewares = [];
+  }
+  listen(...args) {
+    const server = http.createServer(async (req, res) => {
+      const ctx = this.createContext(req, res);
+      
+      // 合成中间件函数
+      const fn = this.compose(this.middlewares)
 
-    start(port) {
-        this.$app.listen(port,()=>{
-            console.log('服务器启动成功，端口：'+ port);
-            
-        })
-    }
+      await fn(ctx);
+
+      // 渲染结果
+      res.end(ctx.body)
+    });
+
+    server.listen(...args);
+  }
+
+  compose(mids) {
+    return function(ctx) {
+      // 组合结果函数
+      // 执行第0个
+      return dispatch(0);
+  
+      // 需要返回Promise
+      function dispatch(i) {
+        let fn = mids[i];
+        if (!fn) {
+          // 执行任务结束
+          return Promise.resolve();
+        }
+        return Promise.resolve(
+          fn(ctx, function next() {
+            return dispatch(i + 1);
+          })
+        );
+      }
+    };
+  }
+
+  createContext(req, res) {
+    const ctx = Object.create(context);
+    ctx.request = Object.create(request);
+    ctx.response = Object.create(response);
+    //   添加引用
+    ctx.req = ctx.request.req = req;
+    ctx.res = ctx.response.res = res;
+
+    return ctx;
+  }
+
+  use(middleware) {
+    this.middlewares.push(middleware);
+  }
 }
 
-module.exports = kkb;
+module.exports = KKB;
